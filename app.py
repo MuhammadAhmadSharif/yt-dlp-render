@@ -29,7 +29,7 @@ def download_video():
         if cookies:
             with open('temp_cookies.txt', 'w') as f:
                 f.write(cookies)
-            ydl_opts['cookiefile'] = 'temp_cookies.txt']
+            ydl_opts['cookiefile'] = 'temp_cookies.txt'  # Fixed: Removed extra ]
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
