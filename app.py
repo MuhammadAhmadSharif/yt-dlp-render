@@ -26,17 +26,20 @@ def download_video():
             'outtmpl': f'{DOWNLOAD_DIR}/%(title)s.%(ext)s',
             'format': 'best',
         }
+        # Only add cookiefile if cookies are provided
         if cookies:
-            with open('temp_cookies.txt', 'w') as f:
+            temp_cookies_file = 'temp_cookies.txt'
+            with open(temp_cookies_file, 'w') as f:
                 f.write(cookies)
-            ydl_opts['cookiefile'] = 'temp_cookies.txt'  # Fixed: Removed extra ]
+            ydl_opts['cookiefile'] = temp_cookies_file
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             file_path = ydl.prepare_filename(info)
 
-        if cookies and os.path.exists('temp_cookies.txt'):
-            os.remove('temp_cookies.txt')  # Clean up
+        # Clean up temp cookies file if it was created
+        if cookies and os.path.exists(temp_cookies_file):
+            os.remove(temp_cookies_file)
 
         # Construct a URL for the file
         file_name = os.path.basename(file_path)
@@ -55,6 +58,9 @@ def download_video():
         }), 200
 
     except Exception as e:
+        # Clean up temp cookies file in case of failure
+        if cookies and os.path.exists('temp_cookies.txt'):
+            os.remove('temp_cookies.txt')
         return jsonify({
             "status": "error",
             "message": str(e),
